@@ -1,0 +1,42 @@
+plugins {
+    id 'org.springframework.boot' version '3.4.5'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+}
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(23)
+    }
+    sourceCompatibility = JavaVersion.VERSION_23
+    targetCompatibility = JavaVersion.VERSION_23
+}
+
+group = 'com.acme.eis.policy'
+version = '0.1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.projectlombok:lombok:1.18.38'
+    runtimeOnly 'org.postgresql:postgresql'
+
+    annotationProcessor 'org.projectlombok:lombok:1.18.38'
+    implementation project(':common-events')
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+    testImplementation 'org.testcontainers:junit-jupiter:1.21.0'
+    testImplementation 'org.testcontainers:kafka:1.21.0'
+    testImplementation 'org.testcontainers:postgresql:1.21.0'
+
+}
+
+test {
+    useJUnitPlatform()
+}

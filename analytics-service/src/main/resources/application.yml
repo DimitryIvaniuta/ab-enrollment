@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: analytics-service
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    properties:
+      schema.registry.url: ${SCHEMA_REGISTRY_URL:http://localhost:8081}
+      security.protocol: SASL_SSL
+      ssl.truststore.location: ${KAFKA_TRUSTSTORE_LOCATION:classpath:truststore.jks}
+      ssl.truststore.password: ${KAFKA_TRUSTSTORE_PASSWORD:mypassord}
+      ssl.keystore.location: ${KAFKA_KEYSTORE_LOCATION:classpath:keystore.jks}
+      ssl.keystore.password: ${KAFKA_KEYSTORE_PASSWORD:mypassord}
+      ssl.key.password: ${KAFKA_KEY_PASSWORD:mypassord}
+      sasl.mechanism: SCRAM-SHA-512
+      sasl.jaas.config: >
+        org.apache.kafka.common.security.scram.ScramLoginModule required
+        username="${KAFKA_USERNAME:analytics_user}"
+        password="${KAFKA_PASSWORD:password}";
+
+  kafka.streams:
+    application-id: analytics-service-streams
+    state-dir: /tmp/kafka-streams
+    properties:
+      processing.guarantee: exactly_once_v2
+      default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+      default.value.serde: io.confluent.kafka.serializers.KafkaAvroSerde
+
+server:
+  port: ${SERVER_PORT:8084}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers
+  endpoint:
+    health:
+      show-details: always

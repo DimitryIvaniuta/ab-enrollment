@@ -1,0 +1,50 @@
+# enrollment-service/src/main/resources/application.yml
+spring:
+  application:
+    name: enrollment-service
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    properties:
+      schema.registry.url: ${SCHEMA_REGISTRY_URL:http://localhost:8081}
+      security.protocol: SASL_SSL
+      ssl.truststore.location: ${KAFKA_TRUSTSTORE_LOCATION:classpath:truststore.jks}
+      ssl.truststore.password: ${KAFKA_TRUSTSTORE_PASSWORD:changeit}
+      ssl.keystore.location: ${KAFKA_KEYSTORE_LOCATION:classpath:keystore.jks}
+      ssl.keystore.password: ${KAFKA_KEYSTORE_PASSWORD:changeit}
+      ssl.key.password: ${KAFKA_KEY_PASSWORD:changeit}
+      sasl.mechanism: SCRAM-SHA-512
+      sasl.jaas.config: >
+        org.apache.kafka.common.security.scram.ScramLoginModule required
+        username="${KAFKA_USERNAME:enroll_user}"
+        password="${KAFKA_PASSWORD:password}";
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+
+    consumer:
+      group-id: enrollment-service-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+      auto-offset-reset: earliest
+      properties:
+        specific.avro.reader: true
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:enrollmentdb}
+    username: ${DB_USERNAME:enroll_user}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+
+server:
+  port: ${SERVER_PORT:8081}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers
+  endpoint:
+    health:
+      show-details: always
